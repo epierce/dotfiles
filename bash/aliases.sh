@@ -47,6 +47,7 @@ alias restart-tomcat='pkill -9 java ; /usr/local/apps/tomcat/bin/startup.sh ; ta
 alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
+alias vi='vim'
 
 function jcurl() {
   curl -i -H "Content-Type: application/json" -X POST -d $1 $2
