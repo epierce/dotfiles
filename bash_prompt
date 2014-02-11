@@ -8,16 +8,20 @@ elif infocmp xterm-256color >/dev/null 2>&1; then
 	export TERM=xterm-256color
 fi
 
+# For reference: tto view all 256 colors
+# ( x=`tput op` y=`printf %$((${COLUMNS}-6))s`;for i in {0..256};do o=00$i;echo -e ${o:${#o}-3:3} `tput setaf $i;tput setab $i`${y// /=}$x;done; )
+
 if tput setaf 1 &> /dev/null; then
 	tput sgr0
 	if [[ $(tput colors) -ge 256 ]] 2>/dev/null; then
-		MAGENTA=$(tput setaf 9)
+		RED=$(tput setaf 9)
 		ORANGE=$(tput setaf 172)
-		GREEN=$(tput setaf 190)
+		GREEN=$(tput setaf 34)
 		PURPLE=$(tput setaf 141)
 		WHITE=$(tput setaf 256)
+        BLUE=$(tput setaf 21)
 	else
-		MAGENTA=$(tput setaf 5)
+		RED=$(tput setaf 5)
 		ORANGE=$(tput setaf 4)
 		GREEN=$(tput setaf 2)
 		PURPLE=$(tput setaf 1)
@@ -34,7 +38,7 @@ if tput setaf 1 &> /dev/null; then
     REDBG=$(tput setab 9)
     WHITEBG=$(tput setab 7)
 else
-	MAGENTA="\033[1;31m"
+	RED="\033[1;31m"
 	ORANGE="\033[1;33m"
 	GREEN="\033[1;32m"
 	PURPLE="\033[1;35m"
@@ -44,6 +48,7 @@ else
 fi
 
 HOSTNAME="`echo $HOSTNAME|tr '[a-z]' '[A-Z]'`"
+SEPARATOR="--------------------------------------------------------------------------------"
 
 function parse_git_dirty() {
 	[[ $(git status 2> /dev/null | tail -n1) != "nothing to commit (working directory clean)" ]] && echo "*"
@@ -53,4 +58,16 @@ function parse_git_branch() {
 	git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e "s/* \(.*\)/\1$(parse_git_dirty)/"
 }
 
-PS1="\[${BOLD}${BLACKBG}${MAGENTA}\]------------------------------------------------------------------------------------------------\n\[${BOLD}${REDBG}${WHITE}\]\u@\[$WHITE\]${HOSTNAME}${BLACKBG} \[$WHITE\]in \[$GREEN\]\w\[$WHITE\]\$([[ -n \$(git branch 2> /dev/null) ]] && echo \" on \")\[$PURPLE\]\$(parse_git_branch)\[$WHITE\]\n\$ \[$RESET\]"
+case $ENVIRONMENT in
+    'production')
+        PS1="\[${BOLD}${RED}\]${SEPARATOR}\n\[${SMSO}${RED}\]\u@\${HOSTNAME}${RMSO} \[$RESET\]in \[$GREEN\]\w\[$WHITE\]\$([[ -n \$(git branch 2> /dev/null) ]] && echo \" on \")\[$PURPLE\]\$(parse_git_branch)\[$WHITE\]\n\$ \[$RESET\]"
+    ;;
+
+    'test')
+        PS1="\[${BOLD}${BLUE}\]${SEPARATOR}\n\[${SMSO}${BLUE}\]\u@\${HOSTNAME}${RMSO} \[$RESET\]in \[$GREEN\]\w\[$WHITE\]\$([[ -n \$(git branch 2> /dev/null) ]] && echo \" on \")\[$PURPLE\]\$(parse_git_branch)\[$WHITE\]\n\$ \[$RESET\]"
+    ;;
+
+    *)
+        PS1="\[${BOLD}${GREEN}\]${SEPARATOR}\n\[${SMSO}${GREEN}\]\u@\${HOSTNAME}${RMSO} \[$RESET\]in \[$GREEN\]\w\[$WHITE\]\$([[ -n \$(git branch 2> /dev/null) ]] && echo \" on \")\[$PURPLE\]\$(parse_git_branch)\[$WHITE\]\n\$ \[$RESET\]"
+    ;;
+esac

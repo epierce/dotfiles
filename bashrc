@@ -40,6 +40,11 @@ for a in `ls $HOME/.bash/*.sh`; do
   source $a
 done
 
+# Include local configuration
+if [ -f ~/.bashrc_local ]; then
+  . ~/.bashrc_local
+fi
+
 # git completion!
 source ~/.git-completion.bash
 
